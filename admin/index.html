@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campiglio Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="shortcut icon"
+      href="../assets/favicon.ico"
+      type="image/x-icon"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Login Form (initially visible) -->
+    <div id="loginContainer" class="login-container hidden">
+      <div class="login-box">
+        <h2>Admin Login</h2>
+        <form id="loginForm" class="login-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" required />
+          </div>
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Dashboard-->
+    <div id="dashboardContainer" class="dashboard-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img src="../assets/Campiglio.png" alt="Logo" class="logo" />
+          <h3>Admin Panel</h3>
+        </div>
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-view="overview">
+            <i class="fas fa-home"></i> Overview
+          </button>
+          <button class="nav-item" data-view="venues">
+            <i class="fas fa-map-marker-alt"></i> Venues
+          </button>
+          <button class="nav-item" data-view="categories">
+            <i class="fas fa-tags"></i> Categories
+          </button>
+          <button class="nav-item" data-view="banners">
+            <i class="fas fa-image"></i> Banners
+          </button>
+          <button class="nav-item" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </nav>
+      </aside>
+      <div class="overlay" id="sidebarOverlay"></div>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+          <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="search-bar">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search venues..."
+            />
+            <i class="fas fa-search"></i>
+          </div>
+          <div class="user-info">
+            <span id="adminUsername">Admin</span>
+            <i class="fas fa-user-circle"></i>
+          </div>
+        </div>
+
+        <!-- Content Views -->
+        <div id="overviewView" class="content-view">
+          <h2>Dashboard Overview</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <i class="fas fa-building"></i>
+              <div class="stat-info">
+                <h3>Total Venues</h3>
+                <p id="totalVenues">Loading...</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-chart-line"></i>
+              <div class="stat-info">
+                <h3>Categories</h3>
+                <p id="totalCategories">Loading...</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-clock"></i>
+              <div class="stat-info">
+                <h3>Recent Updates</h3>
+                <p id="recentUpdates">Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="venuesView" class="content-view hidden">
+          <div class="venues-header">
+            <h2>Manage Venues</h2>
+            <button id="addVenueBtn" class="primary-button">
+              <i class="fas fa-plus"></i> Add New Venue
+            </button>
+          </div>
+          <div class="venues-table-container">
+            <table id="venuesTable" class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Address</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="venuesTableBody">
+                <!-- Venues will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination-container" id="paginationContainer"></div>
+        </div>
+
+        <div id="categoriesView" class="content-view hidden">
+          <h2>Manage Categories</h2>
+          <div class="categories-grid" id="categoriesGrid">
+            <!-- Categories will be loaded here -->
+          </div>
+        </div>
+
+        <div id="bannersView" class="content-view hidden">
+          <div class="banners-header">
+              <h2>Manage Banners</h2>
+              <button id="addBannerBtn" class="primary-button">
+                  <i class="fas fa-plus"></i> Add New Banner
+              </button>
+          </div>
+          <div class="banners-table-container">
+              <table id="bannersTable" class="data-table">
+                  <thead>
+                      <tr>
+                          <th>Preview</th>
+                          <th>Name</th>
+                          <th>Link</th>
+                          <th>Order</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                      </tr>
+                  </thead>
+                  <tbody id="bannersTableBody">
+                      <!-- Banners will be loaded here -->
+                  </tbody>
+              </table>
+          </div>
+      </div>
+      
+      <!-- Add Banner Modal -->
+      <div id="bannerModal" class="modal hidden">
+          <div class="modal-content">
+              <span class="close-modal">&times;</span>
+              <h2 id="bannerModalTitle">Add New Banner</h2>
+              <form id="bannerForm">
+                  <input type="hidden" id="bannerId">
+                  <div class="form-group">
+                      <label for="bannerName">Name</label>
+                      <input type="text" id="bannerName" required>
+                  </div>
+                  <div class="form-group">
+                      <label for="bannerImageUrl">Image URL</label>
+                      <input type="url" id="bannerImageUrl" required>
+                  </div>
+                  <div class="form-group">
+                      <label for="bannerLink">Link URL</label>
+                      <input type="url" id="bannerLink" required>
+                  </div>
+                  <div class="form-group">
+                      <label for="bannerOrder">Display Order</label>
+                      <input type="number" id="bannerOrder" min="1" value="1" required>
+                  </div>
+                  <div class="form-check">
+                      <input type="checkbox" id="bannerActive" checked>
+                      <label for="bannerActive">Active</label>
+                  </div>
+                  <div class="button-group">
+                      <button type="submit" class="primary-button">Save Banner</button>
+                      <button type="button" class="secondary-button" onclick="dashboard.closeBannerModal()">Cancel</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+      </main>
+    </div>
+
+    <!-- Add/Edit Venue Modal -->
+    <div id="venueModal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 id="modalTitle">Add New Venue</h2>
+        <form id="venueForm" data-venue-id="">
+          <div class="form-group">
+            <label for="venueName">Name</label>
+            <input type="text" id="venueName" required />
+          </div>
+          <div class="form-group">
+            <label for="venueCategory">Category</label>
+            <div class="category-select-container">
+              <div class="category-select" id="categorySelect">
+                <span class="placeholder">Select Categories</span>
+              </div>
+              <div class="dropdown-content" id="categoryDropdown">
+                <!-- Categories will be populated by JavaScript -->
+              </div>
+              <input
+                type="hidden"
+                id="venueCategory"
+                name="category"
+                value=""
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="venueAddress">Address</label>
+            <input type="text" id="venueAddress" required />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="venueLat">Latitude</label>
+              <input type="number" id="venueLat" step="any" required />
+            </div>
+            <div class="form-group">
+              <label for="venueLng">Longitude</label>
+              <input type="number" id="venueLng" step="any" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="venuePhone">Phone</label>
+            <input type="tel" id="venuePhone" />
+          </div>
+          <div class="form-group">
+            <label for="venueWebsite">Website</label>
+            <input type="url" id="venueWebsite" />
+          </div>
+          <div class="form-group">
+            <label for="venueImportance">Importance (1-10)</label>
+            <div class="importance-input-container">
+              <input 
+                type="number" 
+                id="venueImportance" 
+                min="1" 
+                max="10" 
+                value="5"
+                required 
+              />
+              <span class="importance-help">Higher values appear first (Default: 5)</span>
+            </div>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" id="venue24_7" />
+            <label for="venue24_7">Open 24/7</label>
+          </div>
+          <div class="form-group" id="openingHoursContainer">
+            <label>Opening Hours (Format: HH:MM)</label>
+            <div class="opening-hours-grid">
+              <!-- Monday -->
+              <div class="day-row">
+                <div class="day-label">Monday</div>
+                <div class="time-inputs">
+                  <input
+                    type="text"
+                    id="monOpen"
+                    name="openingHours[monday][open]"
+                    placeholder="08:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <span>to</span>
+                  <input
+                    type="text"
+                    id="monClose"
+                    name="openingHours[monday][close]"
+                    placeholder="17:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <button type="button" class="clear-times-btn" data-day="monday">
+                    <i class="fas fa-times"></i> Clear
+                  </button>
+                </div>
+              </div>
+          
+              <!-- Tuesday -->
+              <div class="day-row">
+                <div class="day-label">Tuesday</div>
+                <div class="time-inputs">
+                  <input
+                    type="text"
+                    id="tueOpen"
+                    name="openingHours[tuesday][open]"
+                    placeholder="08:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <span>to</span>
+                  <input
+                    type="text"
+                    id="tueClose"
+                    name="openingHours[tuesday][close]"
+                    placeholder="17:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <button type="button" class="clear-times-btn" data-day="tuesday">
+                    <i class="fas fa-times"></i> Clear
+                  </button>
+                </div>
+              </div>
+          
+              <!-- Wednesday -->
+              <div class="day-row">
+                <div class="day-label">Wednesday</div>
+                <div class="time-inputs">
+                  <input
+                    type="text"
+                    id="wedOpen"
+                    name="openingHours[wednesday][open]"
+                    placeholder="08:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <span>to</span>
+                  <input
+                    type="text"
+                    id="wedClose"
+                    name="openingHours[wednesday][close]"
+                    placeholder="17:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <button type="button" class="clear-times-btn" data-day="wednesday">
+                    <i class="fas fa-times"></i> Clear
+                  </button>
+                </div>
+              </div>
+          
+              <!-- Thursday -->
+              <div class="day-row">
+                <div class="day-label">Thursday</div>
+                <div class="time-inputs">
+                  <input
+                    type="text"
+                    id="thuOpen"
+                    name="openingHours[thursday][open]"
+                    placeholder="08:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <span>to</span>
+                  <input
+                    type="text"
+                    id="thuClose"
+                    name="openingHours[thursday][close]"
+                    placeholder="17:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <button type="button" class="clear-times-btn" data-day="thursday">
+                    <i class="fas fa-times"></i> Clear
+                  </button>
+                </div>
+              </div>
+          
+              <!-- Friday -->
+              <div class="day-row">
+                <div class="day-label">Friday</div>
+                <div class="time-inputs">
+                  <input
+                    type="text"
+                    id="friOpen"
+                    name="openingHours[friday][open]"
+                    placeholder="08:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <span>to</span>
+                  <input
+                    type="text"
+                    id="friClose"
+                    name="openingHours[friday][close]"
+                    placeholder="17:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <button type="button" class="clear-times-btn" data-day="friday">
+                    <i class="fas fa-times"></i> Clear
+                  </button>
+                </div>
+              </div>
+          
+              <!-- Saturday -->
+              <div class="day-row">
+                <div class="day-label">Saturday</div>
+                <div class="time-inputs">
+                  <input
+                    type="text"
+                    id="satOpen"
+                    name="openingHours[saturday][open]"
+                    placeholder="08:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <span>to</span>
+                  <input
+                    type="text"
+                    id="satClose"
+                    name="openingHours[saturday][close]"
+                    placeholder="17:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <button type="button" class="clear-times-btn" data-day="saturday">
+                    <i class="fas fa-times"></i> Clear
+                  </button>
+                </div>
+              </div>
+          
+              <!-- Sunday -->
+              <div class="day-row">
+                <div class="day-label">Sunday</div>
+                <div class="time-inputs">
+                  <input
+                    type="text"
+                    id="sunOpen"
+                    name="openingHours[sunday][open]"
+                    placeholder="08:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <span>to</span>
+                  <input
+                    type="text"
+                    id="sunClose"
+                    name="openingHours[sunday][close]"
+                    placeholder="17:00"
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                  />
+                  <button type="button" class="clear-times-btn" data-day="sunday">
+                    <i class="fas fa-times"></i> Clear
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="button-group">
+            <button type="submit" class="primary-button">Save Venue</button>
+            <button
+              type="button"
+              class="secondary-button"
+              onclick="dashboard.closeModal()"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="dashboard.js"></script>
+  </body>
+</html>

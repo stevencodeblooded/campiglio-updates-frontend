@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campiglio Admin Login</title>
+    <link rel="shortcut icon" href="../assets/favicon.ico" type="image/x-icon">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --border-color: #dcdde1;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f6fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header img {
+            width: 200px;
+            margin-bottom: 1rem;
+        }
+
+        .login-header h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .error-message {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--error-color);
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-login:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-login:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .flex-signup-back-link {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .back-link, .user-signup {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: #2980b9;
+        }
+        .user-signup:hover {
+            color: #2980b9;
+        }
+
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="../assets/Campiglio.png" alt="Campiglio Logo">
+            <h2>Admin Login</h2>
+        </div>
+        <div id="errorMessage" class="error-message"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    required 
+                    autocomplete="username"
+                    placeholder="Enter your username"
+                >
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    required 
+                    autocomplete="current-password"
+                    placeholder="Enter your password"
+                >
+            </div>
+            <button type="submit" class="btn-login" id="loginButton">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login</span>
+            </button>
+        </form>
+        <div class="flex-signup-back-link">
+            <a href="../index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Back to Map
+            </a>
+            <a href="signup.html" class="user-signup">
+                <i class="fa-solid fa-user"></i>
+                Sign Up
+            </a>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const loginButton = document.getElementById('loginButton');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        try {
+            // Prevent multiple submissions
+            if (loginButton.disabled) return;
+            
+            loginButton.disabled = true;
+            loginButton.innerHTML = '<i class="fas fa-spinner loading"></i> Logging in...';
+            
+            const response = await fetch(`${CONFIG.API_URL}/admin/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error('Too many login attempts. Please wait a few minutes and try again.');
+                }
+                throw new Error(data.message || 'Login failed');
+            }
+
+            // Clear any existing tokens
+            localStorage.clear();
+            
+            // Store new token
+            localStorage.setItem('adminToken', data.token);
+            localStorage.setItem('adminUsername', document.getElementById('username').value); // Add this line
+
+            // Add a small delay before redirect
+            setTimeout(() => {
+                window.location.replace('index.html');
+            }, 100);
+
+        } catch (error) {
+            errorMessage.style.display = 'block';
+            errorMessage.textContent = error.message;
+        } finally {
+            loginButton.disabled = false;
+            loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+        }
+    });
+
+    // Only redirect if we have a token and we're on the login page
+    if (localStorage.getItem('adminToken') && window.location.pathname.endsWith('login.html')) {
+        window.location.replace('index.html');
+    }
+    </script>
+</body>
+</html>

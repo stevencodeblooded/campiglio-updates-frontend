@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Campiglio Is Magic - Real-time opening hours and schedules of activities
+      in Madonna di Campiglio (TN)
+    </title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header Section -->
+      <header>
+        <img src="assets/Campiglio.png" alt="Campiglio" class="campiglio" />
+        <div class="title-flex"><h1>Campiglio Is Magic</h1></div>
+        <h3 class="subtitle">
+          Real-time opening hours and schedules of activities in Madonna di
+          Campiglio (TN)
+        </h3>
+        <div class="search-container">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search venues..."
+            aria-label="Search venues"
+          />
+        </div>
+      </header>
+      <!-- View Toggle and Filters Section -->
+      <nav class="controls-section">
+        <div class="view-toggle">
+          <button id="listViewBtn" class="active">
+            <span class="icon">📋</span> List view
+          </button>
+          <button id="mapViewBtn"><span class="icon">🗺️</span> Map view</button>
+        </div>
+        <div class="filters">
+          <div class="category-filters">
+            <button data-category="all" class="active">All</button>
+            <button data-category="bars">🍺 Bars</button>
+            <button data-category="clubs">🎵 clubs</button>
+            <button data-category="restaurants">🍽️ Restaurants</button>
+            <button data-category="hotels">🏨 Hotels</button>
+            <button data-category="shops">🛍️ Shops</button>
+            <button data-category="skiresorts">⛷️ Ski schools</button>
+            <button data-category="shelters">🏕️ Shelters</button>
+            <button data-category="sports">⚽ Sports</button>
+          </div>
+          <div class="status-filter">
+            <label class="checkbox-container">
+              <input type="checkbox" id="openNowFilter" />
+              <span class="checkmark"></span> Show only open places
+            </label>
+          </div>
+        </div>
+      </nav>
+      <!-- Loading Spinner -->
+      <div id="loadingSpinner" class="loading-overlay">
+        <div class="loading-spinner-container">
+            <div class="spinner-ring"></div>
+            <p class="loading-text">Loading venues...</p>
+        </div>
+    </div>
+      <!-- Error Message Container -->
+      <div id="errorMessage" class="error-message hidden"></div>
+      <!-- Main Content Area -->
+      <main>
+        <!-- List View -->
+        <div id="listView" class="view active">
+          <div class="venues-list"><!-- Venues will be populated here --></div>
+        </div>
+        <!-- Map View -->
+        <div id="mapView" class="view">
+          <div id="map"></div>
+          <div id="venue-details" class="hidden">
+            <!-- Venue details will be shown here -->
+          </div>
+        </div>
+      </main>
+      <!-- BANNER OR SIMPLY LOGOS -->
+      <div class="sponsors-banner">
+        <div class="banner-container" id="bannerContainer">
+          <!-- Banners will be dynamically inserted here -->
+        </div>
+      </div>
+      <!-- Footer -->
+      <footer class="footer">
+        <p>Contact Us: <a href="mailto:info@campiglioismagic.it" class="our-mail"><span class="contact-email">info@campiglioismagic.it</span></a></p>
+        <p>© 2024 <a href="http://campiglioismagic.it" class="footer-website-link" target="_blank" rel="noopener noreferrer">Campiglio Is Magic</a>. Powered by OpenStreetMap</p>
+      </footer>
+    </div>
+    <div class="mobile-map-panel">
+      <div class="mobile-map-panel-header">
+        <h3>Location Details</h3>
+        <button class="close-panel">
+          <span class="icon">📋</span> Back to list
+        </button>
+      </div>
+      <div class="map-container">
+        <!-- The map will be moved here on mobile -->
+      </div>
+    </div>
+    <!-- Scripts -->
+    <script src="/admin/config.js"></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>
