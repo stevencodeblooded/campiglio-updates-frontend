@@ -1,6 +1,6 @@
 const CONFIG = {
-    // API_URL: 'https://server.campiglioismagic.it/api',
-    API_URL: 'http://localhost:5001/api',
+    API_URL: 'https://server.campiglioismagic.it/api',
+    // API_URL: 'http://localhost:5001/api',
     CATEGORIES: {
         bars: {
             icon: '🍺',

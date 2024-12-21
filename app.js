@@ -247,7 +247,7 @@ class VenueDisplay {
     determineVenueStatus(venue) {
         // First priority: Check 24/7 status
         if (venue.is24_7) {
-            return { isOpen: true, text: '24/7' };
+            return { isOpen: true, text: 'Open' };
         }
     
         // Second priority: Check opening hours if available
@@ -257,10 +257,6 @@ class VenueDisplay {
             const currentDay = days[now.getDay()];
             const todayHours = venue.openingHours[currentDay];
     
-            // Get tomorrow's day for "Opens tomorrow" messages
-            const tomorrowDay = days[(now.getDay() + 1) % 7];
-            const tomorrowHours = venue.openingHours[tomorrowDay];
-    
             if (todayHours && todayHours.open && todayHours.close) {
                 // Convert current time to HH:MM format
                 const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
@@ -269,65 +265,23 @@ class VenueDisplay {
                 // Handle cases where closing time is on the next day
                 if (todayHours.close < todayHours.open) {
                     const isOpen = currentTime >= todayHours.open || currentTime < todayHours.close;
-                    if (isOpen) {
-                        return {
-                            isOpen: true,
-                            text: `Open until ${todayHours.close}`
-                        };
-                    } else {
-                        if (currentTime < todayHours.open) {
-                            return {
-                                isOpen: false,
-                                text: `Opens today at ${todayHours.open}`
-                            };
-                        } else {
-                            // If we're past today's opening time and closed, show tomorrow's opening
-                            return {
-                                isOpen: false,
-                                text: tomorrowHours?.open ? 
-                                    `Opens tomorrow at ${tomorrowHours.open}` : 
-                                    'Closed'
-                            };
-                        }
-                    }
+                    return {
+                        isOpen: isOpen,
+                        text: isOpen ? 'Open' : 'Closed'
+                    };
                 }
     
                 // Normal case where closing time is on the same day
                 const isOpen = currentTime >= todayHours.open && currentTime < todayHours.close;
-                if (isOpen) {
-                    return {
-                        isOpen: true,
-                        text: `Open until ${todayHours.close}`
-                    };
-                } else {
-                    if (currentTime < todayHours.open) {
-                        return {
-                            isOpen: false,
-                            text: `Opens today at ${todayHours.open}`
-                        };
-                    } else {
-                        // Past closing time, show tomorrow's opening time if available
-                        return {
-                            isOpen: false,
-                            text: tomorrowHours?.open ? 
-                                `Opens tomorrow at ${tomorrowHours.open}` : 
-                                'Closed'
-                        };
-                    }
-                }
-            } else {
-                // Check if there are hours for tomorrow
                 return {
-                    isOpen: false,
-                    text: tomorrowHours?.open ? 
-                        `Opens tomorrow at ${tomorrowHours.open}` : 
-                        'Hours not available'
+                    isOpen: isOpen,
+                    text: isOpen ? 'Open' : 'Closed'
                 };
             }
         }
     
         // If no valid opening hours found
-        return { isOpen: false, text: 'Hours not available' };
+        return { isOpen: false, text: 'Closed' };
     }
 
     async loadVenues(category = 'all') {
@@ -511,12 +465,10 @@ class VenueDisplay {
     
         venuesList.innerHTML = this.venues.map(venue => {
             const status = this.determineVenueStatus(venue);
-            // Create category icons with proper spacing
             const categoryIcons = venue.category
                 .map(cat => `<span class="category-icon">${CONFIG.CATEGORIES[cat]?.icon || ''}</span>`)
                 .join('');
 
-            // Add a featured class for high-priority venues
             const isFeatured = venue.importance > 5;
                 
             return `

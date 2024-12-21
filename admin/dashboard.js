@@ -29,41 +29,48 @@ class Dashboard {
 
   async init() {
     try {
-      const token = localStorage.getItem("adminToken");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
 
-      const response = await fetch(`${CONFIG.API_URL}/admin/dashboard-stats`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+        const response = await fetch(`${CONFIG.API_URL}/admin/dashboard-stats`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to verify authentication");
-      }
+        if (!response.ok) {
+            throw new Error('Failed to verify authentication');
+        }
 
-      // Show dashboard UI
-      document.getElementById("loginContainer")?.classList.add("hidden");
-      document.getElementById("dashboardContainer")?.classList.remove("hidden");
+        // Get user role and hide signup button if not super-admin
+        const userRole = localStorage.getItem('userRole');
+        console.log('Current user role:', userRole); // Debug log
+        
+        const createUserBtn = document.querySelector('.nav-item[onclick*="signup.html"]');
+        if (createUserBtn && userRole !== 'super-admin') {
+            createUserBtn.style.display = 'none';
+        }
 
-      // Set username in the dashboard (add this line)
-      this.setUsername();
+        // Show dashboard UI
+        document.getElementById('loginContainer')?.classList.add('hidden');
+        document.getElementById('dashboardContainer')?.classList.remove('hidden');
 
-      this.setupDragAndDrop();
+        // Set username in the dashboard
+        this.setUsername();
 
-      // Setup dashboard
-      this.setupEventListeners();
-      this.setupOpeningHoursHandlers();
-      await this.loadInitialData();
-      this.initialized = true;
+        this.setupDragAndDrop();
+        this.setupEventListeners();
+        this.setupOpeningHoursHandlers();
+        await this.loadInitialData();
+        this.initialized = true;
     } catch (error) {
-      localStorage.removeItem("adminToken");
-      window.location.replace("login.html");
+        localStorage.removeItem('adminToken');
+        window.location.replace('login.html');
     }
-  }
+}
 
   initCategorySelect() {
     if (this.categorySelect) {
@@ -194,7 +201,8 @@ class Dashboard {
       item.addEventListener("click", (e) => {
         if (e.currentTarget.id === "logoutBtn") {
           localStorage.removeItem("adminToken");
-          localStorage.removeItem("adminUsername"); // Add this line
+          localStorage.removeItem("adminUsername");
+          localStorage.removeItem('userRole');
           window.location.replace("login.html");
         } else {
           this.switchView(e.currentTarget.dataset.view);

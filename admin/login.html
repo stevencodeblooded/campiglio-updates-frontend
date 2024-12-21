@@ -186,73 +186,76 @@
                 <i class="fas fa-arrow-left"></i>
                 Back to Map
             </a>
-            <a href="signup.html" class="user-signup">
-                <i class="fa-solid fa-user"></i>
-                Sign Up
-            </a>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const loginButton = document.getElementById('loginButton');
-        const errorMessage = document.getElementById('errorMessage');
-        
-        try {
-            // Prevent multiple submissions
-            if (loginButton.disabled) return;
+            e.preventDefault();
             
-            loginButton.disabled = true;
-            loginButton.innerHTML = '<i class="fas fa-spinner loading"></i> Logging in...';
+            const loginButton = document.getElementById('loginButton');
+            const errorMessage = document.getElementById('errorMessage');
             
-            const response = await fetch(`${CONFIG.API_URL}/admin/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: document.getElementById('username').value,
-                    password: document.getElementById('password').value
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                if (response.status === 429) {
-                    throw new Error('Too many login attempts. Please wait a few minutes and try again.');
+            try {
+                // Prevent multiple submissions
+                if (loginButton.disabled) return;
+                
+                loginButton.disabled = true;
+                loginButton.innerHTML = '<i class="fas fa-spinner loading"></i> Logging in...';
+                
+                const response = await fetch(`${CONFIG.API_URL}/admin/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+    
+                const data = await response.json();
+                console.log('Login response:', data);
+    
+                if (!response.ok) {
+                    if (response.status === 429) {
+                        throw new Error('Too many login attempts. Please wait a few minutes and try again.');
+                    }
+                    throw new Error(data.message || 'Login failed');
                 }
-                throw new Error(data.message || 'Login failed');
+    
+                // Clear any existing tokens
+                localStorage.clear();
+                
+                // Store all necessary data including role
+                localStorage.setItem('userRole', data.data.admin.role);
+                localStorage.setItem('adminToken', data.token);
+                localStorage.setItem('adminUsername', document.getElementById('username').value);
+    
+                // Add a small delay before redirect
+                setTimeout(() => {
+                    console.log('localStorage contents before redirect:', {
+                        token: localStorage.getItem('adminToken'),
+                        username: localStorage.getItem('adminUsername'),
+                        role: localStorage.getItem('userRole')
+                    });
+                    window.location.replace('index.html');
+                }, 1000);
+    
+            } catch (error) {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = error.message;
+            } finally {
+                loginButton.disabled = false;
+                loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
             }
-
-            // Clear any existing tokens
-            localStorage.clear();
-            
-            // Store new token
-            localStorage.setItem('adminToken', data.token);
-            localStorage.setItem('adminUsername', document.getElementById('username').value); // Add this line
-
-            // Add a small delay before redirect
-            setTimeout(() => {
-                window.location.replace('index.html');
-            }, 100);
-
-        } catch (error) {
-            errorMessage.style.display = 'block';
-            errorMessage.textContent = error.message;
-        } finally {
-            loginButton.disabled = false;
-            loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+        });
+    
+        // Only redirect if we have a token and we're on the login page
+        if (localStorage.getItem('adminToken') && window.location.pathname.endsWith('login.html')) {
+            window.location.replace('index.html');
         }
-    });
-
-    // Only redirect if we have a token and we're on the login page
-    if (localStorage.getItem('adminToken') && window.location.pathname.endsWith('login.html')) {
-        window.location.replace('index.html');
-    }
     </script>
 </body>
 </html>

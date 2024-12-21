@@ -1,0 +1,15 @@
+{
+    "status": "success",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDhlZGZiMzg3OTdiYWVlMTY2YWQyNCIsImlhdCI6MTczNDgxMTA1NCwiZXhwIjoxNzM0ODk3NDU0fQ.JF1CqXFL1d4Ahrdbw5NxX_1bxBLhMcEGEO43gXR_3mQ",
+    "data": {
+        "admin": {
+            "_id": "6748edfb38797baee166ad24",
+            "username": "admin",
+            "role": "super-admin",
+            "createdAt": "2024-11-28T22:26:03.615Z",
+            "updatedAt": "2024-12-21T19:57:34.167Z",
+            "__v": 0,
+            "lastLogin": "2024-12-21T19:57:34.167Z"
+        }
+    }
+}
