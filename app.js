@@ -643,11 +643,49 @@ class VenueDisplay {
     
         if (!venue) return;
     
-        // Set a higher zoom level for better detail view
-        const DETAIL_ZOOM_LEVEL = 19; // Increase this value for more zoom (max is 19)
+        const DETAIL_ZOOM_LEVEL = 19;
+        const marker = this.markers.get(venueId);
+        
+        if (!marker) return;
+
+        // Close any existing popups
+        this.map.closePopup();
+        
+        const handleMarkerDisplay = () => {
+            this.map.invalidateSize();
+            
+            // First set the view without animation
+            this.map.setView(
+                [venue.location.coordinates[1], venue.location.coordinates[0]],
+                DETAIL_ZOOM_LEVEL,
+                { animate: false }
+            );
+            
+            // Force popup to open after a short delay
+            setTimeout(() => {
+                marker.openPopup();
+                
+                // Adjust view to account for popup height
+                const popup = marker.getPopup();
+                if (popup._container) {
+                    const popupHeight = popup._container.offsetHeight;
+                    const point = this.map.latLngToContainerPoint([
+                        venue.location.coordinates[1],
+                        venue.location.coordinates[0]
+                    ]);
+                    const adjustedPoint = L.point(point.x, point.y - (popupHeight/2));
+                    const adjustedLatLng = this.map.containerPointToLatLng(adjustedPoint);
+                    
+                    this.map.setView(
+                        adjustedLatLng,
+                        DETAIL_ZOOM_LEVEL,
+                        { animate: true, duration: 0.5 }
+                    );
+                }
+            }, 100);
+        };
     
         if (isMobile) {
-            // Mobile behavior
             const mapPanel = document.querySelector('.mobile-map-panel');
             const mapContainer = document.querySelector('.mobile-map-panel .map-container');
             const mapElement = document.getElementById('map');
@@ -659,38 +697,11 @@ class VenueDisplay {
     
                 mapPanel.classList.add('active');
                 document.body.classList.add('map-panel-open');
-    
-                setTimeout(() => {
-                    this.map.invalidateSize();
-                    const marker = this.markers.get(venueId);
-                    if (marker) {
-                        marker.openPopup();
-                        
-                        // Calculate center position considering popup height
-                        const popup = marker.getPopup();
-                        const popupHeight = popup._container?.offsetHeight || 200;
-                        
-                        const point = this.map.latLngToContainerPoint([
-                            venue.location.coordinates[1], 
-                            venue.location.coordinates[0]
-                        ]);
-                        const adjustedPoint = L.point(point.x, point.y - (popupHeight/2));
-                        const adjustedLatLng = this.map.containerPointToLatLng(adjustedPoint);
-                        
-                        // Set view with higher zoom level
-                        this.map.setView(
-                            adjustedLatLng,
-                            DETAIL_ZOOM_LEVEL,
-                            {
-                                animate: true,
-                                duration: 1 // Increased duration for smoother zoom
-                            }
-                        );
-                    }
-                }, 500);
+                
+                // Handle mobile display after panel animation
+                setTimeout(handleMarkerDisplay, 300);
             }
         } else {
-            // Desktop behavior
             const mapView = document.getElementById('mapView');
             const listView = document.getElementById('listView');
     
@@ -701,33 +712,7 @@ class VenueDisplay {
                     listView.classList.add('map-visible');
                 }
     
-                setTimeout(() => {
-                    this.map.invalidateSize();
-                    const marker = this.markers.get(venueId);
-                    if (marker) {
-                        marker.openPopup();
-                        
-                        const popup = marker.getPopup();
-                        const popupHeight = popup._container?.offsetHeight || 200;
-                        
-                        const point = this.map.latLngToContainerPoint([
-                            venue.location.coordinates[1], 
-                            venue.location.coordinates[0]
-                        ]);
-                        const adjustedPoint = L.point(point.x, point.y - (popupHeight/2));
-                        const adjustedLatLng = this.map.containerPointToLatLng(adjustedPoint);
-                        
-                        // Set view with higher zoom level
-                        this.map.setView(
-                            adjustedLatLng,
-                            DETAIL_ZOOM_LEVEL,
-                            {
-                                animate: true,
-                                duration: 1 // Increased duration for smoother zoom
-                            }
-                        );
-                    }
-                }, 100);
+                handleMarkerDisplay();
     
                 const mapViewBtn = document.getElementById('mapViewBtn');
                 const listViewBtn = document.getElementById('listViewBtn');
@@ -738,6 +723,7 @@ class VenueDisplay {
                 this.currentView = 'map';
             }
         }
+
     }
 
     closeMobileMapPanel() {
